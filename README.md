@@ -84,3 +84,5 @@ python3.6 ~/CAT-5.1.2/CAT_pack/CAT bins -d ~/databases/CAT_prepare_20200618/2020
 
 python3.6 ~/CAT-5.1.2/CAT_pack/CAT add_names -t /home/c_c947/databases/CAT_prepare_20200618/2020-06-18_taxonomy/ --only_official -i bins.CAT.contig2classification.txt -o bins.CAT.contig2classification.official_names.txt 
 ```
+
+### 11. For Single Nucleotide Variants (SNVs) analyses --> follow Anvio' tutorial: http://merenlab.org/2015/07/20/analyzing-variability/
