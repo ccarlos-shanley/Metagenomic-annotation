@@ -1,5 +1,5 @@
 # Metagenomic-annotation worklow for co-assembling and MAG analysis
-#### When running in the TXST LEAP cluster lode the python module
+#### When running in the TXST LEAP cluster load the python module
 ```
 module load opt-python
 ```
