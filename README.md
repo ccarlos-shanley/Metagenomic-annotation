@@ -1,4 +1,8 @@
 # Metagenomic-annotation worklow for co-assembling and MAG analysis
+#### When running in the TXST LEAP cluster lode the python module
+```
+module load opt-python
+```
 
 ### 1. Quality filtering/trimming raw reads using fastp 0.19.4
 
