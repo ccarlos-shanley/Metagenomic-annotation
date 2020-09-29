@@ -21,21 +21,30 @@ cat SAMPLE1_R2_trimmed.fastq SAMPLE2_R2_trimmed.fastq SAMPLE3_R2_trimmed.fastq .
 megahit -t 28 -1 combined_R1.fastq -2 combined_R2.fastq -o coassembly
 ```
 
-### 4. gene calling with prokka 1.12
+### 4. gene calling on coassembled contigs with prokka 1.12
 ```
 prokka --metagenome --compliant --fast --norrna --notrna --noanno --mincontiglen 1000 --cpus 28 coassembly/final.contigs.fasta --outdir Scoassembly_prokka
 ```
 
-### 5. ko annotation with kofamscan
+### 5. ko annotation of coassembled contigs with kofamscan
 ```
 exec_annotation -f mapper -c config.yml -o coassembly.ko coassembly_prokka/PROKKA_XXXXXXXX.faa
 ```
 
-### 6. binning using concoct
+### 6. Taxonomic annoations of coassembled contigs using CAT 5.1.2
+```
+python3.6 ~/CAT-5.1.2/CAT_pack/CAT contigs -d ~/databases/CAT_prepare_20200618/2020-06-18_CAT_database/ -t ~/databases/CAT_prepare_20200618/2020-06-18_taxonomy/ -c coassembly/final.contigs.fa -o coassembly
+
+python3.6 ~/CAT-5.1.2/CAT_pack/CAT add_names -t /home/c_c947/databases/CAT_prepare_20200618/2020-06-18_taxonomy/ --only_official -i coassembly.CAT.contig2classification.txt -o coassembly.CAT.contig2classification.official_names.txt 
+
+python3.6 ~/CAT-5.1.2/CAT_pack/CAT summarise -c beetle_coassemble_metagenome/final.contigs.fa -i coassembly.CAT.contig2classification.official_names.txt -o CAT_coassembly.summary.txt
+```
+
+### 7. binning coassembled contigs using concoct
 ```
 bowtie2-build -f coassembly/final.contigs.fasta contigs
 
-bowtie2 -p 24 -1 combined.R1.fastq -2 combined.R2.fastq -x HID1973K_combined_bin01 -S mapped.sam
+bowtie2 -p 24 -1 combined.R1.fastq -2 combined.R2.fastq -x contigs -S mapped.sam
 
 samtools sort -O bam mapped.sam -o mapped_sorted.bam 
 
@@ -53,6 +62,25 @@ mkdir concoct_output/fasta_bins
 extract_fasta_bins.py coassembly/final.contigs.fasta concoct_output/clustering_merged.csv --output_path concoct_output/fasta_bins
 ```
 
-### 7. checking quality of bins
-
+### 8. checking quality of bins
+```
 checkm lineage_wf -t 28 concoct_output/fasta_bins/ coassembled_bins_checkm -x fa
+```
+
+### 9. mapping and quantifying sample reads to coassembled contigs
+```
+bowtie2 -p 24 -1 SAMPLE1.fastq -2 SAMPLE1.R2.fastq -x contigs -S SAMPLE1.mapped.sam
+
+samtools sort -O bam SAMPLE1.mapped.sam -o SAMPLE1.mapped_sorted.bam 
+
+samtools index SAMPLE1.mapped_sorted.bam
+
+samtools idxstats SAMPLE1.mapped_sorted.bam > SAMPLE1.mapped_sorted.tab
+```
+
+### 10. Taxonomic annoations of coassembled BINS using CAT 5.1.2
+```
+python3.6 ~/CAT-5.1.2/CAT_pack/CAT bins -d ~/databases/CAT_prepare_20200618/2020-06-18_CAT_database/ -t ~/databases/CAT_prepare_20200618/2020-06-18_taxonomy/ -c concoct_output/fasta_bins/ -o bins
+
+python3.6 ~/CAT-5.1.2/CAT_pack/CAT add_names -t /home/c_c947/databases/CAT_prepare_20200618/2020-06-18_taxonomy/ --only_official -i bins.CAT.contig2classification.txt -o bins.CAT.contig2classification.official_names.txt 
+```
