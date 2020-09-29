@@ -20,26 +20,39 @@ cat SAMPLE1_R2_trimmed.fastq SAMPLE2_R2_trimmed.fastq SAMPLE3_R2_trimmed.fastq .
 
 megahit -t 28 -1 combined_R1.fastq -2 combined_R2.fastq -o coassembly
 ```
-### 4. individual assembling with MEGAHIT v1.1.3
+
+### 4. gene calling with prokka 1.12
 ```
-megahit -t 28 -1 SAMPLE1_R1_trimmed.fastq -2 SAMPLE1_R2_trimmed.fastq -o SAMPLE1
-```
-### 5. gene calling with prokka 1.12
-```
-prokka --metagenome --compliant --fast --norrna --notrna --noanno --mincontiglen 1000 --cpus 28 SAMPLE1/final.contigs.fasta --outdir SAMPLE1_prokka
+prokka --metagenome --compliant --fast --norrna --notrna --noanno --mincontiglen 1000 --cpus 28 coassembly/final.contigs.fasta --outdir Scoassembly_prokka
 ```
 
-### 6. ko annotation with kofamscan
+### 5. ko annotation with kofamscan
 ```
-exec_annotation -f mapper -c config.yml -o SAMPLE1.ko SAMPLE1_prokka/PROKKA_XXXXXXXX.faa
+exec_annotation -f mapper -c config.yml -o coassembly.ko coassembly_prokka/PROKKA_XXXXXXXX.faa
 ```
-### 7. combine ko annotation files from different metagenomes into a table using a custom script
+
+### 6. binning using concoct
 ```
-./file_column_map.py SAMPLE1.ko SAMPLE2.ko SAMPLE3.ko ... > counts.csv
+bowtie2-build -f coassembly/final.contigs.fasta contigs
+
+bowtie2 -p 24 -1 combined.R1.fastq -2 combined.R2.fastq -x HID1973K_combined_bin01 -S mapped.sam
+
+samtools sort -O bam mapped.sam -o mapped_sorted.bam 
+
+samtools index mapped_sorted.bam
+
+cut_up_fasta.py coassembly/final.contigs.fasta -c 10000 -o 0 --merge_last -b contigs_10K.bed > contigs_10K.fa
+
+concoct_coverage_table.py contigs_10K.bed mapped_sorted.bam > coverage_table.tsv
+
+concoct --composition_file contigs_10K.fa -t 24 --coverage_file coverage_table.tsv -b concoct_output/
+
+merge_cutup_clustering.py concoct_output/clustering_gt1000.csv > concoct_output/clustering_merged.csv
+
+mkdir concoct_output/fasta_bins
+extract_fasta_bins.py coassembly/final.contigs.fasta concoct_output/clustering_merged.csv --output_path concoct_output/fasta_bins
 ```
-### 8. binning using concoct
 
+### 7. checking quality of bins
 
-### 10. checking quality of bins
-
-
+checkm lineage_wf -t 28 concoct_output/fasta_bins/ coassembled_bins_checkm -x fa
