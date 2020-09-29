@@ -40,7 +40,7 @@ python3.6 ~/CAT-5.1.2/CAT_pack/CAT add_names -t /home/c_c947/databases/CAT_prepa
 python3.6 ~/CAT-5.1.2/CAT_pack/CAT summarise -c beetle_coassemble_metagenome/final.contigs.fa -i coassembly.CAT.contig2classification.official_names.txt -o CAT_coassembly.summary.txt
 ```
 
-### 7. binning coassembled contigs using concoct
+### 7. binning coassembled contigs using concoct 1.1.0
 ```
 bowtie2-build -f coassembly/final.contigs.fasta contigs
 
@@ -62,7 +62,7 @@ mkdir concoct_output/fasta_bins
 extract_fasta_bins.py coassembly/final.contigs.fasta concoct_output/clustering_merged.csv --output_path concoct_output/fasta_bins
 ```
 
-### 8. checking quality of bins
+### 8. checking quality of bins with checkM
 ```
 checkm lineage_wf -t 28 concoct_output/fasta_bins/ coassembled_bins_checkm -x fa
 ```
