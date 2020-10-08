@@ -7,7 +7,7 @@ module load opt-python
 ### 1. Quality filtering/trimming raw reads using fastp 0.19.4
 
 ```
-fastp -i SAMPLE1_R1_001.fastq.gz -I SAMPLE1_R2_001.fastq.gz -o SAMPLE1_R1_trimmed.fastq -O SAMPLE2_R2_trimmed.fastq
+fastp -i SAMPLE1_R1_001.fastq.gz -I SAMPLE1_R2_001.fastq.gz -o SAMPLE1_R1_trimmed.fastq -O SAMPLE1_R2_trimmed.fastq
 ```
 
 ### 2. taxonomic classification of the reads with Kaiju 1.7.3
